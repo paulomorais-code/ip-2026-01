@@ -16,6 +16,6 @@ func main() {
 	}
 	media := soma / float64(quantidade)
 
-	fmt.Printf("média é = %2.f\n", media)
+	fmt.Printf("média é = %.2f\n", media)
 
 }
