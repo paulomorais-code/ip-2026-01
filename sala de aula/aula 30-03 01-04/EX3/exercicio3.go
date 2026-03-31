@@ -11,9 +11,8 @@ func main() {
 		fmt.Printf("Digite nota %d:", i+1)
 		fmt.Scan(&valor[i])
 	}
-	for cont > 1 {
-		fmt.Print(valor[cont-1], ",")
+	for cont > 0 {
+		fmt.Printf("%v ", valor[cont-1])
 		cont = cont - 1
 	}
-	fmt.Print(valor[0])
 }
