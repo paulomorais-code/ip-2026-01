@@ -15,7 +15,7 @@ func BuscaBinaria(l []int, x int) int {
 			e = m + 1
 		}
 		if l[m] > x {
-			e = m - 1
+			d = m - 1
 
 		}
 	}
