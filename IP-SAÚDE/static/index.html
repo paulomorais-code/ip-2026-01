@@ -13,7 +13,6 @@
             <div class="hero-copy">
                 <span class="eyebrow">Hospital | UTI Adulto</span>
                 <h1>Painel operacional da UTI</h1>
-                <p>O painel consome os dados do banco em tempo real para cadastrar pacientes, editar registros e registrar alta removendo o paciente da lista ativa.</p>
             </div>
 
             <div class="hero-metrics">
@@ -155,57 +154,20 @@
                             <select name="id" required>
                                 <option value="">Escolha um paciente</option>
                                 {{range .Patients}}
-                                    <option value="{{.ID}}">#{{.ID}} · {{.NomeCompleto}} · {{.Leito}}</option>
+                                    <option value="{{.ID}}" data-status="{{.Status}}" data-priority="{{.Prioridade}}">#{{.ID}} · {{.NomeCompleto}} · {{.Leito}}</option>
                                 {{end}}
                             </select>
                         </label>
 
                         <label>
-                            Nome completo
-                            <input type="text" name="nome" placeholder="Nome atualizado" required />
+                            Prioridade
+                            <select name="prioridade" required>
+                                <option>Crítico</option>
+                                <option>Alto risco</option>
+                                <option>Estável</option>
+                            </select>
                         </label>
-
-                        <div class="form-row">
-                            <label>
-                                Idade
-                                <input type="number" name="idade" placeholder="Idade" min="1" required />
-                            </label>
-                            <label>
-                                Leito
-                                <input type="text" name="leito" placeholder="Leito" required />
-                            </label>
-                        </div>
-
-                        <label>
-                            Diagnóstico inicial
-                            <input type="text" name="diagnostico" placeholder="Diagnóstico atualizado" required />
-                        </label>
-
-                        <div class="form-row">
-                            <label>
-                                Prioridade
-                                <select name="prioridade" required>
-                                    <option>Crítico</option>
-                                    <option>Alto risco</option>
-                                    <option>Estável</option>
-                                </select>
-                            </label>
-                            <label>
-                                Origem
-                                <select name="origem" required>
-                                    <option>Pronto-socorro</option>
-                                    <option>Centro cirúrgico</option>
-                                    <option>Transferência externa</option>
-                                </select>
-                            </label>
-                        </div>
-
-                        <label>
-                            Observações clínicas
-                            <textarea name="observacoes" rows="3" placeholder="Observações atualizadas"></textarea>
-                        </label>
-
-                        <button type="submit">Salvar alterações</button>
+                        <button type="submit">Atualizar prioridade</button>
                     </form>
                 </article>
 
@@ -227,14 +189,43 @@
                                 {{end}}
                             </select>
                         </label>
-
-                        <p class="helper-text">A alta remove o paciente da lista ativa no banco de dados.</p>
-
                         <button type="submit" class="danger-button">Alta</button>
                     </form>
                 </article>
             </aside>
         </section>
     </main>
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        var patientSelect = document.querySelector('form[action="/updatePatient"] select[name="id"]');
+        var prioritySelect = document.querySelector('form[action="/updatePatient"] select[name="prioridade"]');
+        if(!patientSelect || !prioritySelect) return;
+        function syncPriority(){
+            var opt = patientSelect.options[patientSelect.selectedIndex];
+            var priority = opt ? opt.getAttribute('data-priority') : null;
+            if(priority){
+                var found = false;
+                for(var i=0;i<prioritySelect.options.length;i++){
+                    if(prioritySelect.options[i].value === priority){
+                        prioritySelect.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    var newOpt = document.createElement('option');
+                    newOpt.text = priority;
+                    newOpt.value = priority;
+                    prioritySelect.insertBefore(newOpt, prioritySelect.firstChild);
+                    prioritySelect.selectedIndex = 0;
+                }
+            } else {
+                prioritySelect.selectedIndex = 0;
+            }
+        }
+        patientSelect.addEventListener('change', syncPriority);
+        syncPriority();
+    });
+    </script>
 </body>
 </html>

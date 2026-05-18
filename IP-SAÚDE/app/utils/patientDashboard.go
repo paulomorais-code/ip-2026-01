@@ -183,6 +183,56 @@ func UpdatePatient(idPaciente int, nomeCompleto string, idade int, leito string,
 	return nil
 }
 
+func UpdatePatientStatus(idPaciente int, status string) error {
+	if idPaciente <= 0 {
+		return fmt.Errorf("id inválido")
+	}
+	if strings.TrimSpace(status) == "" {
+		return fmt.Errorf("status inválido")
+	}
+
+	query := `UPDATE pacientes_uti SET status = $1, data_atualizacao = NOW() WHERE id = $2 AND COALESCE(status, 'Ativo') = 'Ativo'`
+	result, err := DB.Exec(query, status, idPaciente)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("paciente ativo não encontrado para o id %d", idPaciente)
+	}
+
+	return nil
+}
+
+func UpdatePatientPriority(idPaciente int, priority string) error {
+	if idPaciente <= 0 {
+		return fmt.Errorf("id inválido")
+	}
+	if strings.TrimSpace(priority) == "" {
+		return fmt.Errorf("prioridade inválida")
+	}
+
+	query := `UPDATE pacientes_uti SET prioridade = $1, data_atualizacao = NOW() WHERE id = $2 AND COALESCE(status, 'Ativo') = 'Ativo'`
+	result, err := DB.Exec(query, priority, idPaciente)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("paciente ativo não encontrado para o id %d", idPaciente)
+	}
+
+	return nil
+}
+
 func statusClass(status string) string {
 	switch status {
 	case "Alta":
