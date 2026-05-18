@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel UTI | IP Saúde</title>
+    <link rel="stylesheet" href="/styles/index.style.css">
+</head>
+
+<body>
+    <main class="app-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <span class="eyebrow">Hospital | UTI Adulto</span>
+                <h1>Painel operacional da UTI</h1>
+                <p>O painel consome os dados do banco em tempo real para cadastrar pacientes, editar registros e registrar alta removendo o paciente da lista ativa.</p>
+            </div>
+
+            <div class="hero-metrics">
+                <article class="metric-card accent">
+                    <span>Ativos</span>
+                    <strong>{{.ActiveCount}}</strong>
+                </article>
+                <article class="metric-card">
+                    <span>Última atualização</span>
+                    <strong>{{.LastUpdated}}</strong>
+                </article>
+            </div>
+        </header>
+
+        <section class="stats-grid" aria-label="Resumo da UTI">
+            <article class="stat-card">
+                <span>Total ativo</span>
+                <strong>{{.TotalCount}}</strong>
+            </article>
+            <article class="stat-card critical">
+                <span>Críticos</span>
+                <strong>{{.CriticalCount}}</strong>
+            </article>
+            <article class="stat-card warning">
+                <span>Alto risco</span>
+                <strong>{{.HighRiskCount}}</strong>
+            </article>
+            <article class="stat-card success">
+                <span>Estáveis</span>
+                <strong>{{.StableCount}}</strong>
+            </article>
+        </section>
+
+        <section class="layout-grid">
+            <article class="panel board-panel">
+                <div class="panel-title">
+                    <div>
+                        <span class="eyebrow">Leitos</span>
+                        <h2>Pacientes ativos</h2>
+                    </div>
+                    <span class="status-chip">{{.ActiveCount}} em acompanhamento</span>
+                </div>
+
+                {{if .Patients}}
+                    <div class="patient-list">
+                        {{range .Patients}}
+                            <article class="patient-card {{.PriorityClass}}">
+                                <div class="patient-head">
+                                    <div>
+                                        <strong>#{{.ID}} · {{.NomeCompleto}}</strong>
+                                        <p>{{.Leito}} · {{.DiagnosticoInicial}}</p>
+                                    </div>
+                                    <span class="pill">{{.Prioridade}}</span>
+                                </div>
+
+                                <div class="patient-meta">
+                                    <span>Idade: {{.Idade}}</span>
+                                    <span>Origem: {{.Origem}}</span>
+                                    <span>Cadastro: {{.DataCadastro}}</span>
+                                </div>
+                            </article>
+                        {{end}}
+                    </div>
+                {{else}}
+                    <p class="empty-state">{{.EmptyStateMessage}}</p>
+                {{end}}
+            </article>
+
+            <aside class="forms-grid">
+                <article class="panel form-panel">
+                    <div class="panel-title">
+                        <div>
+                            <span class="eyebrow">Cadastro</span>
+                            <h2>Novo paciente</h2>
+                        </div>
+                    </div>
+
+                    <form class="patient-form" action="/registerPatient" method="post">
+                        <label>
+                            Nome completo
+                            <input type="text" name="nome" placeholder="Ex.: Carlos Almeida" required />
+                        </label>
+
+                        <div class="form-row">
+                            <label>
+                                Idade
+                                <input type="number" name="idade" placeholder="62" min="1" required />
+                            </label>
+                            <label>
+                                Leito
+                                <input type="text" name="leito" placeholder="Ex.: 11" required />
+                            </label>
+                        </div>
+
+                        <label>
+                            Diagnóstico inicial
+                            <input type="text" name="diagnostico" placeholder="Ex.: Insuficiência respiratória" required />
+                        </label>
+
+                        <div class="form-row">
+                            <label>
+                                Prioridade
+                                <select name="prioridade" required>
+                                    <option>Crítico</option>
+                                    <option>Alto risco</option>
+                                    <option>Estável</option>
+                                </select>
+                            </label>
+                            <label>
+                                Origem
+                                <select name="origem" required>
+                                    <option>Pronto-socorro</option>
+                                    <option>Centro cirúrgico</option>
+                                    <option>Transferência externa</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label>
+                            Observações clínicas
+                            <textarea name="observacoes" rows="4" placeholder="Sinais vitais, suporte atual e observações" ></textarea>
+                        </label>
+
+                        <button type="submit">Cadastrar paciente</button>
+                    </form>
+                </article>
+
+                <article class="panel form-panel">
+                    <div class="panel-title">
+                        <div>
+                            <span class="eyebrow">Edição</span>
+                            <h2>Atualizar paciente</h2>
+                        </div>
+                    </div>
+
+                    <form class="patient-form" action="/updatePatient" method="post">
+                        <label>
+                            Selecione o paciente
+                            <select name="id" required>
+                                <option value="">Escolha um paciente</option>
+                                {{range .Patients}}
+                                    <option value="{{.ID}}">#{{.ID}} · {{.NomeCompleto}} · {{.Leito}}</option>
+                                {{end}}
+                            </select>
+                        </label>
+
+                        <label>
+                            Nome completo
+                            <input type="text" name="nome" placeholder="Nome atualizado" required />
+                        </label>
+
+                        <div class="form-row">
+                            <label>
+                                Idade
+                                <input type="number" name="idade" placeholder="Idade" min="1" required />
+                            </label>
+                            <label>
+                                Leito
+                                <input type="text" name="leito" placeholder="Leito" required />
+                            </label>
+                        </div>
+
+                        <label>
+                            Diagnóstico inicial
+                            <input type="text" name="diagnostico" placeholder="Diagnóstico atualizado" required />
+                        </label>
+
+                        <div class="form-row">
+                            <label>
+                                Prioridade
+                                <select name="prioridade" required>
+                                    <option>Crítico</option>
+                                    <option>Alto risco</option>
+                                    <option>Estável</option>
+                                </select>
+                            </label>
+                            <label>
+                                Origem
+                                <select name="origem" required>
+                                    <option>Pronto-socorro</option>
+                                    <option>Centro cirúrgico</option>
+                                    <option>Transferência externa</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label>
+                            Observações clínicas
+                            <textarea name="observacoes" rows="3" placeholder="Observações atualizadas"></textarea>
+                        </label>
+
+                        <button type="submit">Salvar alterações</button>
+                    </form>
+                </article>
+
+                <article class="panel form-panel danger-panel">
+                    <div class="panel-title">
+                        <div>
+                            <span class="eyebrow">Alta</span>
+                            <h2>Remover paciente</h2>
+                        </div>
+                    </div>
+
+                    <form class="patient-form" action="/dischargePatient" method="post">
+                        <label>
+                            Selecione o paciente
+                            <select name="id" required>
+                                <option value="">Escolha um paciente</option>
+                                {{range .Patients}}
+                                    <option value="{{.ID}}">#{{.ID}} · {{.NomeCompleto}} · {{.Leito}}</option>
+                                {{end}}
+                            </select>
+                        </label>
+
+                        <p class="helper-text">A alta remove o paciente da lista ativa no banco de dados.</p>
+
+                        <button type="submit" class="danger-button">Alta</button>
+                    </form>
+                </article>
+            </aside>
+        </section>
+    </main>
+</body>
+</html>
